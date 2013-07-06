@@ -42,7 +42,7 @@ normalizeList :: [String] -> [String]
 normalizeList = nub . sortBy (compare `on` map toLower)
 
 normalizeNixNames :: [String] -> [String]
-normalizeNixNames = normalizeList . map toNixName
+normalizeNixNames = normalizeList {- . map toNixName -}
 
 normalizeNixLibs :: [String] -> [String]
 normalizeNixLibs = normalizeList . concatMap libNixName

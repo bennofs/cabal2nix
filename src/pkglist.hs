@@ -10,7 +10,6 @@ import Distribution.Compat.ReadP ( ReadP, char, munch, munch1, sepBy, option )
 import Distribution.Text
 import Text.PrettyPrint hiding ( char )
 import Data.List
-import Control.Monad
 import System.FilePath
 
 type Comment = String
@@ -26,9 +25,9 @@ spaces = munch1 (`elem` " \t")
 instance Text Pkg where
   disp (Pkg pn pv cm) = hsep [disp pn, disp pv, text cm]
   parse = do pn <- parse
-             void spaces
+             _ <- spaces
              pv <- parse
-             cm <- option "" (void spaces >> munch (/='\n'))
+             cm <- option "" (spaces >> munch (/='\n'))
              return (Pkg pn pv cm)
 
 newtype PkgList = PkgList [Pkg]

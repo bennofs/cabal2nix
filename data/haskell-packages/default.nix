@@ -1,6 +1,6 @@
 let
 
-  nixpkgs = import <nixpkgs> {};
+  nixpkgs = import <nixpkgs> { system = "x86_64-linux"; };
   cabal = nixpkgs.haskellPackages.cabal;
 
   base-compat = null;

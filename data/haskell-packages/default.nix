@@ -1,6 +1,8 @@
-{ nixpkgs ? import <nixpkgs> {}, cabal ? nixpkgs.haskellPackages.cabal }:
+{ nixpkgs ? import <nixpkgs> {} }:
 
 let
+
+  cabal = nixpkgs.haskellPackages.cabal;
 
   base-compat = null;
   binary = null;

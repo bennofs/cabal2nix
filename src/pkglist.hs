@@ -1,3 +1,11 @@
+-- src/pkglist.hs
+--
+-- Build this program with cabal, and then run
+--
+--     dist/build/pkglist/pkglist data/packages.txt data/haskell-packages
+--
+-- to generate the corresponding Nix configuration for Hydra.
+
 module Main ( main ) where
 
 import Prelude hiding ( lookup )
@@ -11,6 +19,8 @@ import Distribution.Text
 import Text.PrettyPrint hiding ( char )
 import Data.List
 import System.FilePath
+import System.Environment
+import Control.Monad
 
 type Comment = String
 
@@ -105,10 +115,11 @@ callPackage pkg = unlines $
 
 main :: IO ()
 main = do
-  let pkglistDir = "." -- /pkglist/all-packages"
-      outputDir  = pkglistDir </> "nix"
+  args <- getArgs
+  when (length args /= 2) (fail "Usage: pkglist packages.txt output-dir")
+  let pkglistFile:outputDir:[] = args
   hackage <- readHackage
-  PkgList pkgs <- readPkgList (pkglistDir </> "packages.txt")
+  PkgList pkgs <- readPkgList pkglistFile
   let cabalFiles = [ hackage ! pn ! pv | Pkg (PackageName pn) pv _ <- pkgs ]
       derivations = map cabal2nix cabalFiles
   mapM_ (writeNixFile outputDir) derivations

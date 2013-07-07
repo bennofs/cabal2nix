@@ -1,0 +1,160 @@
+Description: Disable some plugins
+ Not all plugins are very useful, and some pull in a lot of dependencies.
+ Disable these. Also implement random in Lambdabot.Utils more naively.
+Author: Joachim Breitner <nomeata@debian.org>
+
+--- lambdabot-4.3.orig/lambdabot.cabal
++++ lambdabot-4.3/lambdabot.cabal
+@@ -77,7 +77,7 @@ library
+                         Lambdabot.Plugin.Check
+                         Lambdabot.Plugin.Check.ShowQ
+                         Lambdabot.Plugin.Compose
+-                        Lambdabot.Plugin.Dice
++                        --Lambdabot.Plugin.Dice
+                         Lambdabot.Plugin.Dict
+                         Lambdabot.Plugin.Djinn
+                         Lambdabot.Plugin.Dummy
+@@ -98,20 +98,20 @@ library
+                         Lambdabot.Plugin.Localtime
+                         Lambdabot.Plugin.Log
+                         Lambdabot.Plugin.More
+-                        Lambdabot.Plugin.Numberwang
++                        --Lambdabot.Plugin.Numberwang
+                         Lambdabot.Plugin.OEIS
+                         Lambdabot.Plugin.OfflineRC
+                         Lambdabot.Plugin.Pl
+                         Lambdabot.Plugin.Pointful
+                         Lambdabot.Plugin.Poll
+                         Lambdabot.Plugin.Pretty
+-                        Lambdabot.Plugin.Quote
++                        --Lambdabot.Plugin.Quote
+                         Lambdabot.Plugin.Search
+                         Lambdabot.Plugin.Seen
+                         Lambdabot.Plugin.Slap
+                         Lambdabot.Plugin.Source
+                         Lambdabot.Plugin.Spell
+-                        Lambdabot.Plugin.Stats
++                        --Lambdabot.Plugin.Stats
+                         Lambdabot.Plugin.System
+                         Lambdabot.Plugin.Tell
+                         Lambdabot.Plugin.Ticker
+@@ -161,17 +161,17 @@ library
+                         dependent-map           == 0.1.*,
+                         dependent-sum           == 0.2.*,
+                         dependent-sum-template  >= 0.0.0.1,
+-                        dice                    >= 0.1,
++                        --dice                    >= 0.1,
+                         directory               >= 1.1,
+                         edit-distance           >= 0.2,
+                         filepath                >= 1.3,
+                         haskeline               >= 0.7,
+                         haskell-src-exts        >= 1.12.0,
+-                        hstatsd                 >= 0.1,
++                        --hstatsd                 >= 0.1,
+                         hslogger                >= 1.2.1,
+                         HTTP                    >= 4000,
+                         lifted-base             >= 0.2,
+-                        misfortune              >= 0.1,
++                        --misfortune              >= 0.1,
+                         monad-control           >= 0.3,
+                         mtl                     >= 2,
+                         network                 >= 2.3.0.13,
+@@ -182,8 +182,8 @@ library
+                         process                 >= 1.1,
+                         QuickCheck              >= 2,
+                         random                  >= 1,
+-                        random-fu               >= 0.2,
+-                        random-source           >= 0.3,
++                        --random-fu               >= 0.2,
++                        --random-source           >= 0.3,
+                         regex-tdfa              >= 1.1,
+                         SafeSemaphore           >= 0.9,
+                         show                    >= 0.4,
+--- lambdabot-4.3.orig/main/Modules.hs
++++ lambdabot-4.3/main/Modules.hs
+@@ -12,7 +12,7 @@ import qualified Lambdabot.Plugin.Base
+ import qualified Lambdabot.Plugin.BF
+ import qualified Lambdabot.Plugin.Check
+ import qualified Lambdabot.Plugin.Compose
+-import qualified Lambdabot.Plugin.Dice
++--import qualified Lambdabot.Plugin.Dice
+ import qualified Lambdabot.Plugin.Dict
+ import qualified Lambdabot.Plugin.Djinn
+ import qualified Lambdabot.Plugin.Dummy
+@@ -35,7 +35,7 @@ import qualified Lambdabot.Plugin.Pl
+ import qualified Lambdabot.Plugin.Pointful
+ import qualified Lambdabot.Plugin.Poll
+ import qualified Lambdabot.Plugin.Pretty
+-import qualified Lambdabot.Plugin.Quote
++--import qualified Lambdabot.Plugin.Quote
+ import qualified Lambdabot.Plugin.Search
+ import qualified Lambdabot.Plugin.Seen
+ import qualified Lambdabot.Plugin.Slap
+@@ -68,7 +68,7 @@ modulesInfo = $(modules $ nub
+                     , "BF"
+                     , "Check"
+                     , "Compose"
+-                    , "Dice"
++                    --, "Dice"
+                     , "Dict"
+                     , "Djinn"
+                     , "Dummy"
+@@ -90,7 +90,7 @@ modulesInfo = $(modules $ nub
+                     , "Pointful"
+                     , "Poll"
+                     , "Pretty"
+-                    , "Quote"
++                    --, "Quote"
+                     , "Search"
+                     , "Seen"
+                     , "Slap"
+--- lambdabot-4.3.orig/src/Lambdabot.hs
++++ lambdabot-4.3/src/Lambdabot.hs
+@@ -39,7 +39,7 @@ import Control.Monad.Error
+ import Control.Monad.Reader
+ import Control.Monad.State
+ import qualified Data.Map as M
+-import Data.Random.Source
++--import Data.Random.Source
+ import qualified Data.Set as S
+ import System.IO
+ 
+@@ -174,15 +174,3 @@ ircPrivmsg' who ""  = ircPrivmsg' who "
+ ircPrivmsg' who msg = send $ privmsg who msg
+ 
+ ------------------------------------------------------------------------
+-
+-monadRandom [d|
+-
+-    instance MonadRandom LB where
+-        getRandomWord8          = LB (lift getRandomWord8)
+-        getRandomWord16         = LB (lift getRandomWord16)
+-        getRandomWord32         = LB (lift getRandomWord32)
+-        getRandomWord64         = LB (lift getRandomWord64)
+-        getRandomDouble         = LB (lift getRandomDouble)
+-        getRandomNByteInteger n = LB (lift (getRandomNByteInteger n))
+-
+- |]
+--- lambdabot-4.3.orig/src/Lambdabot/Util.hs
++++ lambdabot-4.3/src/Lambdabot/Util.hs
+@@ -24,7 +24,7 @@ module Lambdabot.Util (
+ import Control.Monad.Trans
+ import Data.Char
+ import Data.List
+-import Data.Random
++import System.Random (randomRIO)
+ 
+ ------------------------------------------------------------------------
+ 
+@@ -57,7 +57,10 @@ listToStr conj (item:items) =
+ 
+ -- | Pick a random element of the list.
+ random :: MonadIO m => [a] -> m a
+-random = io . sample . randomElement
++random = io . pick
++  where
++    pick :: [a] -> IO a
++    pick xs = randomRIO (0, length xs - 1) >>= return . (xs !!)
+ 
+ ------------------------------------------------------------------------
+ 

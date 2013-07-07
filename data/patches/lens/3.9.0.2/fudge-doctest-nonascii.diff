@@ -1,0 +1,31 @@
+Index: lens-3.9.0.2/src/Data/Complex/Lens.hs
+===================================================================
+--- lens-3.9.0.2.orig/src/Data/Complex/Lens.hs	2013-03-27 14:48:23.000000000 +0000
++++ lens-3.9.0.2/src/Data/Complex/Lens.hs	2013-04-02 01:54:13.162989222 +0000
+@@ -30,7 +30,7 @@
+ 
+ -- $setup
+ -- >>> import Debug.SimpleReflect
+--- >>> let { a ≈ b = abs (a - b) < 1e-6; infix 4 ≈ }
++-- >>> let { a ~~ b = abs (a - b) < 1e-6; infix 4 ~~ }
+ 
+ -- | Access the 'realPart' of a 'Complex' number.
+ --
+@@ -104,7 +104,7 @@
+ 
+ -- | Access the 'phase' of a 'Complex' number.
+ --
+--- >>> (mkPolar 10 (2-pi) & _phase +~ pi & view _phase) ≈ 2
++-- >>> (mkPolar 10 (2-pi) & _phase +~ pi & view _phase) ~~ 2
+ -- True
+ --
+ -- This isn't /quite/ a legal 'Lens'. Notably the
+@@ -126,7 +126,7 @@
+ -- >>> (2.0 :+ 3.0) & _conjugate . _imagPart -~ 1
+ -- 2.0 :+ 4.0
+ --
+--- >>> (mkPolar 10.0 2.0 ^. _conjugate . _phase) ≈ (-2.0)
++-- >>> (mkPolar 10.0 2.0 ^. _conjugate . _phase) ~~ (-2.0)
+ -- True
+ _conjugate :: RealFloat a => Iso' (Complex a) (Complex a)
+ _conjugate = involuted conjugate

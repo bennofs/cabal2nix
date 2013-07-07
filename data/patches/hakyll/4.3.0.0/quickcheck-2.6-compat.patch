@@ -1,0 +1,13 @@
+Index: haskell-hakyll-4.3.0.0/hakyll.cabal
+===================================================================
+--- haskell-hakyll-4.3.0.0.orig/hakyll.cabal	2013-06-15 12:47:37.329150200 +0200
++++ haskell-hakyll-4.3.0.0/hakyll.cabal	2013-06-15 12:47:37.325150200 +0200
+@@ -208,7 +208,7 @@
+ 
+   Build-Depends:
+     HUnit                      >= 1.2 && < 1.3,
+-    QuickCheck                 >= 2.4 && < 2.6,
++    QuickCheck                 >= 2.4 && < 2.7,
+     test-framework             >= 0.4 && < 0.9,
+     test-framework-hunit       >= 0.2 && < 0.4,
+     test-framework-quickcheck2 >= 0.2 && < 0.4,

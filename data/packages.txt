@@ -1,5 +1,3 @@
-alex 3.0.5
-happy 1.18.10
 acid-state 0.8.1
 active 0.1.0.4
 adjunctions 3.0.1
@@ -593,8 +591,8 @@ yaml 0.8.2.3
 yaml-light 0.1.4
 yesod 1.1.9.3
 yesod-auth 1.1.7
-yesod-auth-oauth 1.1.0.2 broken due to crypto-pubkey-types-0.4
 yesod-auth-account 1.1.0.1
+yesod-auth-oauth 1.1.0.2 broken due to crypto-pubkey-types-0.4
 yesod-core 1.1.8.3
 yesod-default 1.1.3.2
 yesod-form 1.2.1.3

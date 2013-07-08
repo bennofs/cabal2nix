@@ -61,9 +61,10 @@ writeNixFile dir pkg = do hash <- hashPackage pkgid
 
 defaultNix :: [Derivation] -> String
 defaultNix pkgs = unlines $
-  [ "{ nixpkgs ? import <nixpkgs> {}, cabal ? nixpkgs.haskellPackages.cabal }:"
+  [ "let"
   , ""
-  , "let"
+  , "  nixpkgs = import <nixpkgs> { system = \"x86_64-linux\"; };"
+  , "  cabal = nixpkgs.haskellPackages.cabal;"
   , ""
   , "  base-compat = null;"
   , "  binary = null;"

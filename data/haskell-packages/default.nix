@@ -3,6 +3,7 @@ let
   nixpkgs = import <nixpkgs> { system = "x86_64-linux"; };
   cabal = nixpkgs.haskellPackages.cabal;
   libc = nixpkgs.stdenv.gcc.libc;
+  gconf = nixpkgs.gnome.GConf;
 
   base-compat = null;
   binary = null;
@@ -2528,12 +2529,12 @@ rec {
 
   zeromq3-haskell = import ./zeromq3-haskell-0.4.nix {
     inherit cabal ansi-terminal async checkers MonadCatchIO-transformers QuickCheck semigroups transformers;
-    inherit (nixpkgs) zeromq;
+    inherit (nixpkgs) zeromq3;
   };
 
   zeromq-haskell = import ./zeromq-haskell-0.8.4.nix {
     inherit cabal QuickCheck test-framework test-framework-quickcheck2;
-    inherit (nixpkgs) zeromq;
+    inherit (nixpkgs) zeromq3;
   };
 
   zip-archive = import ./zip-archive-0.1.3.4.nix {

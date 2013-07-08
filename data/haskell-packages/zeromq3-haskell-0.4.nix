@@ -1,5 +1,5 @@
 { cabal, ansi-terminal, async, checkers, MonadCatchIO-transformers, QuickCheck
-, semigroups, transformers, zeromq
+, semigroups, transformers, zeromq3
 }:
 
 cabal.mkDerivation (self: {
@@ -10,7 +10,7 @@ cabal.mkDerivation (self: {
   testDepends = [
     ansi-terminal checkers MonadCatchIO-transformers QuickCheck transformers
   ];
-  extraLibraries = [ zeromq ];
+  extraLibraries = [ zeromq3 ];
   doCheck = false;
   meta = {
     homepage = "http://github.com/twittner/zeromq-haskell/";

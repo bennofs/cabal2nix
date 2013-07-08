@@ -66,53 +66,59 @@ defaultNix pkgs = unlines $
   , "  nixpkgs = import <nixpkgs> { system = \"x86_64-linux\"; };"
   , "  cabal = nixpkgs.haskellPackages.cabal;"
   , ""
-  , "  base-compat = null;"
-  , "  binary = null;"
-  , "  Cabal = null;"
-  , "  checkers = null;"
-  , "  concurrent-extra = null;"
-  , "  deepseq = null;"
-  , "  diagrams-contrib = null;"
-  , "  dice = null;"
-  , "  double-conversion = null;"
-  , "  encoding = null;"
-  , "  filepath = null;"
-  , "  Glob = null;"
-  , "  hexpat = null;"
-  , "  hspec-meta = null;"
-  , "  hstatsd = null;"
-  , "  httpd-shed = null;"
-  , "  libdpkg = null;"
-  , "  markdown-unlit = null;"
-  , "  misfortune = null;"
-  , "  nanospec = null;"
-  , "  process-leksah = null;"
-  , "  random-fu = null;"
-  , "  random-source = null;"
-  , "  stringbuilder = null;"
-  , "  test-framework-doctest = null;"
-  , "  time = null;"
-  , "  transformers-compat = null;"
-  , "  uniqueid = null;"
-  , "  utf8String = null;"
-  , ""
+  ] ++
+  [ "  " ++ p ++ " = null;" | p <- corePackages ] ++
+  [ ""
   , "in"
   , ""
   , "rec {"
   , ""
   ] ++
-  [ "" ++ callPackage p | p <- pkgs ] ++
+  [ "" ++ callPackage pkgs p | p <- pkgs ] ++
   [ "}" ]
 
-callPackage :: Derivation -> String
-callPackage pkg = unlines $
+callPackage :: [Derivation] -> Derivation -> String
+callPackage pkgset pkg = unlines $
   [ "  " ++ pname pkg ++ " = import ./" ++ display (packageId pkg) ++ ".nix {" ] ++
   [ "    inherit " ++ unwords ("cabal":hsInputs) ++ ";" ] ++
   (if null osInputs then [] else [ "    inherit (nixpkgs) " ++ unwords osInputs ++ ";" ]) ++
   [ "  };" ]
   where
-    hsInputs = normalizeList (buildDepends pkg ++ testDepends pkg)
+    pkgset' = normalizeList $ map pname pkgset ++ corePackages
+    hsInputs = normalizeList (buildDepends pkg ++ testDepends pkg ++ (filter (`elem` pkgset') (buildTools pkg)))
     osInputs = normalizeList (buildTools pkg ++ extraLibs pkg ++ pkgConfDeps pkg) \\ hsInputs
+
+corePackages :: [String]
+corePackages = [ "base-compat"
+               , "binary"
+               , "Cabal"
+               , "checkers"
+               , "concurrent-extra"
+               , "deepseq"
+               , "diagrams-contrib"
+               , "dice"
+               , "double-conversion"
+               , "encoding"
+               , "filepath"
+               , "Glob"
+               , "hexpat"
+               , "hspec-meta"
+               , "hstatsd"
+               , "httpd-shed"
+               , "libdpkg"
+               , "markdown-unlit"
+               , "misfortune"
+               , "nanospec"
+               , "process-leksah"
+               , "random-fu"
+               , "random-source"
+               , "stringbuilder"
+               , "test-framework-doctest"
+               , "time"
+               , "transformers-compat"
+               , "uniqueid"
+               , "utf8String"
+               ]
 
 main :: IO ()
 main = do

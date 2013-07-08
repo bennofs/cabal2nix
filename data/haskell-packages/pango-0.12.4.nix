@@ -1,11 +1,11 @@
-{ cabal, cairo, glib, gtk2hsBuildtools, libc, mtl, pango, pkgconfig }:
+{ cabal, cairo, glib, gtk2hs-buildtools, libc, mtl, pango, pkgconfig }:
 
 cabal.mkDerivation (self: {
   pname = "pango";
   version = "0.12.4";
   sha256 = "08c7kmbnga6lijv7hpxgs766lsvaqpbqbph1gsxncqsl8haq4v5c";
   buildDepends = [ cairo glib mtl ];
-  buildTools = [ gtk2hsBuildtools ];
+  buildTools = [ gtk2hs-buildtools ];
   extraLibraries = [ libc pkgconfig ];
   pkgconfigDepends = [ cairo pango ];
   doCheck = false;

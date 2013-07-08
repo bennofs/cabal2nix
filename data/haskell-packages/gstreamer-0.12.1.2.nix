@@ -1,6 +1,6 @@
 { cabal, glib, gstreamer, gstreamer-audio, gstreamer-base, gstreamer-controller
 , gstreamer-dataprotocol, gstreamer-net, gstreamer-plugins-base
-, gtk2hsBuildtools, mtl
+, gtk2hs-buildtools, mtl
 }:
 
 cabal.mkDerivation (self: {
@@ -8,7 +8,7 @@ cabal.mkDerivation (self: {
   version = "0.12.1.2";
   sha256 = "1kb3l6fgvydfjcw9fni23al6l8l1cpmcnwv17jr4070l85l4f5xd";
   buildDepends = [ glib mtl ];
-  buildTools = [ gtk2hsBuildtools ];
+  buildTools = [ gtk2hs-buildtools ];
   pkgconfigDepends = [
     gstreamer gstreamer-audio gstreamer-base gstreamer-controller
     gstreamer-dataprotocol gstreamer-net gstreamer-plugins-base

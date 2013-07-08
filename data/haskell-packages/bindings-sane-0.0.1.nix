@@ -1,11 +1,11 @@
-{ cabal, bindings-DSL, sane-backends }:
+{ cabal, bindings-DSL, saneBackends }:
 
 cabal.mkDerivation (self: {
   pname = "bindings-sane";
   version = "0.0.1";
   sha256 = "0jxhc0x5hq6y7iznqlxbgnl37a7k8yki2ri475gyc158d47b0zm2";
   buildDepends = [ bindings-DSL ];
-  pkgconfigDepends = [ sane-backends ];
+  pkgconfigDepends = [ saneBackends ];
   doCheck = false;
   meta = {
     homepage = "http://floss.scru.org/bindings-sane";

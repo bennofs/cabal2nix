@@ -1,11 +1,11 @@
-{ cabal, glib, gtk, gtk2hsBuildtools, gtkglext, pango }:
+{ cabal, glib, gtk, gtk2hs-buildtools, gtkglext, pango }:
 
 cabal.mkDerivation (self: {
   pname = "gtkglext";
   version = "0.12.1";
   sha256 = "1vf8jczhnrmrylkzj190wgvn1yxzgkkmd16ghdsxv66q8vm91p5q";
   buildDepends = [ glib gtk pango ];
-  buildTools = [ gtk2hsBuildtools ];
+  buildTools = [ gtk2hs-buildtools ];
   pkgconfigDepends = [ gtkglext ];
   doCheck = false;
   meta = {

@@ -175,7 +175,7 @@ rec {
 
   bindings-sane = import ./bindings-sane-0.0.1.nix {
     inherit cabal bindings-DSL;
-    inherit (nixpkgs) sane-backends;
+    inherit (nixpkgs) saneBackends;
   };
 
   bitarray = import ./bitarray-0.0.1.nix {
@@ -264,7 +264,7 @@ rec {
 
   bzlib = import ./bzlib-0.5.0.4.nix {
     inherit cabal;
-    inherit (nixpkgs) bz2;
+    inherit (nixpkgs) bzip2;
   };
 
   c2hs = import ./c2hs-0.16.4.nix {
@@ -284,8 +284,8 @@ rec {
   };
 
   cairo = import ./cairo-0.12.4.nix {
-    inherit cabal mtl;
-    inherit (nixpkgs) cairo gtk2hsBuildtools libc pkgconfig zlib;
+    inherit cabal gtk2hs-buildtools mtl;
+    inherit (nixpkgs) cairo libc pkgconfig zlib;
   };
 
   carettah = import ./carettah-0.1.2.nix {
@@ -779,8 +779,8 @@ rec {
   };
 
   gconf = import ./gconf-0.12.1.1.nix {
-    inherit cabal glib;
-    inherit (nixpkgs) gconf gtk2hsBuildtools;
+    inherit cabal glib gtk2hs-buildtools;
+    inherit (nixpkgs) gconf;
   };
 
   gd = import ./gd-3000.7.3.nix {
@@ -813,8 +813,7 @@ rec {
   };
 
   gio = import ./gio-0.12.4.nix {
-    inherit cabal glib mtl;
-    inherit (nixpkgs) gtk2hsBuildtools;
+    inherit cabal glib gtk2hs-buildtools mtl;
   };
 
   github = import ./github-0.7.0.nix {
@@ -826,8 +825,8 @@ rec {
   };
 
   glade = import ./glade-0.12.1.nix {
-    inherit cabal glib gtk;
-    inherit (nixpkgs) gtk2hsBuildtools gtkC libc libglade pkgconfig;
+    inherit cabal glib gtk gtk2hs-buildtools;
+    inherit (nixpkgs) gtkC libc libglade pkgconfig;
   };
 
   GLFW = import ./GLFW-0.5.1.0.nix {
@@ -836,8 +835,8 @@ rec {
   };
 
   glib = import ./glib-0.12.4.nix {
-    inherit cabal;
-    inherit (nixpkgs) glib gtk2hsBuildtools libc pkgconfig;
+    inherit cabal gtk2hs-buildtools;
+    inherit (nixpkgs) glib libc pkgconfig;
   };
 
   gloss = import ./gloss-1.7.8.3.nix {
@@ -874,13 +873,13 @@ rec {
   };
 
   gstreamer = import ./gstreamer-0.12.1.2.nix {
-    inherit cabal glib mtl;
-    inherit (nixpkgs) gstreamer gstreamer-audio gstreamer-base gstreamer-controller gstreamer-dataprotocol gstreamer-net gstreamer-plugins-base gtk2hsBuildtools;
+    inherit cabal glib gtk2hs-buildtools mtl;
+    inherit (nixpkgs) gstreamer gstreamer-audio gstreamer-base gstreamer-controller gstreamer-dataprotocol gstreamer-net gstreamer-plugins-base;
   };
 
   gtk = import ./gtk-0.12.4.nix {
-    inherit cabal cairo glib mtl pango;
-    inherit (nixpkgs) gtk gtk2hsBuildtools libc pkgconfig;
+    inherit cabal cairo glib gtk2hs-buildtools mtl pango;
+    inherit (nixpkgs) gtk libc pkgconfig;
   };
 
   gtk2hs-buildtools = import ./gtk2hs-buildtools-0.12.3.nix {
@@ -888,13 +887,13 @@ rec {
   };
 
   gtkglext = import ./gtkglext-0.12.1.nix {
-    inherit cabal glib gtk pango;
-    inherit (nixpkgs) gtk2hsBuildtools gtkglext;
+    inherit cabal glib gtk gtk2hs-buildtools pango;
+    inherit (nixpkgs) gtkglext;
   };
 
   gtksourceview2 = import ./gtksourceview2-0.12.3.1.nix {
-    inherit cabal glib gtk mtl;
-    inherit (nixpkgs) gtk2hsBuildtools gtksourceview libc pkgconfig;
+    inherit cabal glib gtk gtk2hs-buildtools mtl;
+    inherit (nixpkgs) gtksourceview libc pkgconfig;
   };
 
   haddock = import ./haddock-2.13.1.nix {
@@ -1143,7 +1142,7 @@ rec {
 
   hsmagick = import ./hsmagick-0.5.nix {
     inherit cabal filepath;
-    inherit (nixpkgs) bz2 freetype2 GraphicsMagick jasper lcms libjpeg libpng libxml2 tiff wmflite zlib;
+    inherit (nixpkgs) bzip2 freetype2 GraphicsMagick jasper lcms libjpeg libpng libxml2 tiff wmflite zlib;
   };
 
   hsp = import ./hsp-0.8.0.nix {
@@ -1660,8 +1659,8 @@ rec {
   };
 
   pango = import ./pango-0.12.4.nix {
-    inherit cabal cairo glib mtl;
-    inherit (nixpkgs) gtk2hsBuildtools libc pango pkgconfig;
+    inherit cabal cairo glib gtk2hs-buildtools mtl;
+    inherit (nixpkgs) libc pango pkgconfig;
   };
 
   parallel = import ./parallel-3.2.0.3.nix {
@@ -2098,8 +2097,8 @@ rec {
   };
 
   svgcairo = import ./svgcairo-0.12.1.nix {
-    inherit cabal cairo glib mtl;
-    inherit (nixpkgs) gtk2hsBuildtools libc librsvg;
+    inherit cabal cairo glib gtk2hs-buildtools mtl;
+    inherit (nixpkgs) libc librsvg;
   };
 
   syb = import ./syb-0.4.0.nix {
@@ -2255,7 +2254,6 @@ rec {
 
   Unixutils = import ./Unixutils-1.50.nix {
     inherit cabal filepath pureMD5 regex-tdfa zlib;
-    inherit (nixpkgs) crypt;
   };
 
   unlambda = import ./unlambda-0.1.3.nix {
@@ -2327,8 +2325,8 @@ rec {
   };
 
   vte = import ./vte-0.12.1.nix {
-    inherit cabal glib gtk pango;
-    inherit (nixpkgs) gtk2hsBuildtools vte;
+    inherit cabal glib gtk gtk2hs-buildtools pango;
+    inherit (nixpkgs) vte;
   };
 
   vty = import ./vty-4.7.0.20.nix {
@@ -2389,8 +2387,8 @@ rec {
   };
 
   webkit = import ./webkit-0.12.3.nix {
-    inherit cabal cairo glib gtk pango;
-    inherit (nixpkgs) gtk2hsBuildtools webkit;
+    inherit cabal cairo glib gtk gtk2hs-buildtools pango;
+    inherit (nixpkgs) webkit;
   };
 
   web-plugins = import ./web-plugins-0.2.1.nix {

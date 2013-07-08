@@ -1,11 +1,11 @@
-{ cabal, glib, gtk2hsBuildtools, mtl }:
+{ cabal, glib, gtk2hs-buildtools, mtl }:
 
 cabal.mkDerivation (self: {
   pname = "gio";
   version = "0.12.4";
   sha256 = "0npvq77z72c9z009krvs4n9vv3gqj6g8fdqd777kzw1dbkhp9ziy";
   buildDepends = [ glib mtl ];
-  buildTools = [ gtk2hsBuildtools ];
+  buildTools = [ gtk2hs-buildtools ];
   pkgconfigDepends = [ glib ];
   doCheck = false;
   meta = {

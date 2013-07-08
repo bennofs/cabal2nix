@@ -1,11 +1,11 @@
-{ cabal, glib, gtk, gtk2hsBuildtools, pango, vte }:
+{ cabal, glib, gtk, gtk2hs-buildtools, pango, vte }:
 
 cabal.mkDerivation (self: {
   pname = "vte";
   version = "0.12.1";
   sha256 = "1z9grhs161kx6jfrhxxwii722aj2h13fqfvbvl0ybdpm7imghnkl";
   buildDepends = [ glib gtk pango ];
-  buildTools = [ gtk2hsBuildtools ];
+  buildTools = [ gtk2hs-buildtools ];
   pkgconfigDepends = [ vte ];
   doCheck = false;
   meta = {

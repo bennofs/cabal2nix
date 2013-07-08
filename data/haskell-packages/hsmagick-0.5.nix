@@ -1,4 +1,4 @@
-{ cabal, bz2, filepath, freetype2, GraphicsMagick, jasper, lcms, libjpeg
+{ cabal, bzip2, filepath, freetype2, GraphicsMagick, jasper, lcms, libjpeg
 , libpng, libxml2, tiff, wmflite, zlib
 }:
 
@@ -7,7 +7,7 @@ cabal.mkDerivation (self: {
   version = "0.5";
   sha256 = "1bfzbwddss0m0z4jf7i0b06pmxy9rvknpqnzhf0v5jggv5nr442p";
   buildDepends = [ filepath ];
-  extraLibraries = [ bz2 jasper libjpeg libpng tiff wmflite zlib ];
+  extraLibraries = [ bzip2 jasper libjpeg libpng tiff wmflite zlib ];
   pkgconfigDepends = [ freetype2 GraphicsMagick lcms libxml2 ];
   doCheck = false;
   meta = {

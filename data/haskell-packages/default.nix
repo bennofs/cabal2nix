@@ -37,16 +37,6 @@ in
 
 rec {
 
-  alex = import ./alex-3.0.5.nix {
-    inherit cabal QuickCheck;
-    inherit (nixpkgs) perl;
-  };
-
-  happy = import ./happy-1.18.10.nix {
-    inherit cabal mtl;
-    inherit (nixpkgs) perl;
-  };
-
   acid-state = import ./acid-state-0.8.1.nix {
     inherit cabal cereal extensible-exceptions filepath mtl network safecopy stm;
   };
@@ -2489,12 +2479,12 @@ rec {
     inherit cabal aeson authenticate blaze-html blaze-markup file-embed hamlet http-conduit http-types lifted-base mime-mail network persistent persistent-template pureMD5 pwstore-fast random SHA shakespeare-css shakespeare-js text transformers unordered-containers wai yesod-core yesod-form yesod-json yesod-persistent;
   };
 
-  yesod-auth-oauth = import ./yesod-auth-oauth-1.1.0.2.nix {
-    inherit cabal authenticate-oauth lifted-base text transformers yesod-auth yesod-core yesod-form;
-  };
-
   yesod-auth-account = import ./yesod-auth-account-1.1.0.1.nix {
     inherit cabal base64-bytestring blaze-html monad-logger mtl persistent persistent-sqlite pwstore-fast random resourcet text xml-conduit yesod yesod-auth yesod-core yesod-form yesod-persistent yesod-test;
+  };
+
+  yesod-auth-oauth = import ./yesod-auth-oauth-1.1.0.2.nix {
+    inherit cabal authenticate-oauth lifted-base text transformers yesod-auth yesod-core yesod-form;
   };
 
   yesod-core = import ./yesod-core-1.1.8.3.nix {

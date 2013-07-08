@@ -2,6 +2,7 @@ let
 
   nixpkgs = import <nixpkgs> { system = "x86_64-linux"; };
   cabal = nixpkgs.haskellPackages.cabal;
+  libc = nixpkgs.stdenv.gcc.libc;
 
   base-compat = null;
   binary = null;

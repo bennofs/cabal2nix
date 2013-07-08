@@ -65,6 +65,7 @@ defaultNix pkgs = unlines $
   , ""
   , "  nixpkgs = import <nixpkgs> { system = \"x86_64-linux\"; };"
   , "  cabal = nixpkgs.haskellPackages.cabal;"
+  , "  libc = nixpkgs.stdenv.gcc.libc;"
   , ""
   ] ++
   [ "  " ++ p ++ " = null;" | p <- corePackages ] ++

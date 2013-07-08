@@ -37,6 +37,16 @@ in
 
 rec {
 
+  alex = import ./alex-3.0.5.nix {
+    inherit cabal QuickCheck;
+    inherit (nixpkgs) perl;
+  };
+
+  happy = import ./happy-1.18.10.nix {
+    inherit cabal mtl;
+    inherit (nixpkgs) perl;
+  };
+
   acid-state = import ./acid-state-0.8.1.nix {
     inherit cabal cereal extensible-exceptions filepath mtl network safecopy stm;
   };
@@ -54,8 +64,7 @@ rec {
   };
 
   Agda = import ./Agda-2.3.2.1.nix {
-    inherit cabal binary deepseq filepath geniplate hashable hashtables haskeline haskell-src-exts mtl parallel QuickCheck text time unordered-containers xhtml zlib;
-    inherit (nixpkgs) alex happy;
+    inherit cabal alex binary deepseq filepath geniplate happy hashable hashtables haskeline haskell-src-exts mtl parallel QuickCheck text time unordered-containers xhtml zlib;
   };
 
   alex = import ./alex-3.0.5.nix {
@@ -244,8 +253,7 @@ rec {
   };
 
   bytestring-lexing = import ./bytestring-lexing-0.4.0.nix {
-    inherit cabal;
-    inherit (nixpkgs) alex;
+    inherit cabal alex;
   };
 
   bytestring-mmap = import ./bytestring-mmap-0.2.2.nix {
@@ -857,8 +865,8 @@ rec {
   };
 
   gnuidn = import ./gnuidn-0.2.nix {
-    inherit cabal text;
-    inherit (nixpkgs) c2hs libidn;
+    inherit cabal c2hs text;
+    inherit (nixpkgs) libidn;
   };
 
   gnutls = import ./gnutls-0.1.4.nix {
@@ -886,8 +894,7 @@ rec {
   };
 
   gtk2hs-buildtools = import ./gtk2hs-buildtools-0.12.3.nix {
-    inherit cabal filepath random;
-    inherit (nixpkgs) alex happy;
+    inherit cabal alex filepath happy random;
   };
 
   gtkglext = import ./gtkglext-0.12.1.nix {
@@ -901,8 +908,7 @@ rec {
   };
 
   haddock = import ./haddock-2.13.1.nix {
-    inherit cabal Cabal deepseq filepath ghc-paths xhtml;
-    inherit (nixpkgs) alex happy;
+    inherit cabal alex Cabal deepseq filepath ghc-paths happy xhtml;
   };
 
   hakyll = import ./hakyll-4.3.0.0.nix {
@@ -980,13 +986,11 @@ rec {
   };
 
   haskell-src = import ./haskell-src-1.0.1.5.nix {
-    inherit cabal syb;
-    inherit (nixpkgs) happy;
+    inherit cabal happy syb;
   };
 
   haskell-src-exts = import ./haskell-src-exts-1.13.5.nix {
-    inherit cabal cpphs;
-    inherit (nixpkgs) happy;
+    inherit cabal cpphs happy;
   };
 
   haskore = import ./haskore-0.2.0.3.nix {
@@ -1341,8 +1345,7 @@ rec {
   };
 
   language-c = import ./language-c-0.4.2.nix {
-    inherit cabal filepath syb;
-    inherit (nixpkgs) alex happy;
+    inherit cabal alex filepath happy syb;
   };
 
   language-haskell-extract = import ./language-haskell-extract-0.2.1.nix {
@@ -1350,8 +1353,7 @@ rec {
   };
 
   language-javascript = import ./language-javascript-0.5.6.nix {
-    inherit cabal blaze-builder Cabal HUnit mtl QuickCheck test-framework test-framework-hunit utf8-light utf8-string;
-    inherit (nixpkgs) happy;
+    inherit cabal blaze-builder Cabal happy HUnit mtl QuickCheck test-framework test-framework-hunit utf8-light utf8-string;
   };
 
   largeword = import ./largeword-1.0.5.nix {
@@ -1564,8 +1566,8 @@ rec {
   };
 
   ncurses = import ./ncurses-0.2.1.nix {
-    inherit cabal text transformers;
-    inherit (nixpkgs) c2hs ncursesw panel;
+    inherit cabal c2hs text transformers;
+    inherit (nixpkgs) ncursesw panel;
   };
 
   netwire = import ./netwire-4.0.7.nix {
@@ -2410,8 +2412,7 @@ rec {
   };
 
   weighted-regexp = import ./weighted-regexp-0.3.1.2.nix {
-    inherit cabal;
-    inherit (nixpkgs) happy;
+    inherit cabal happy;
   };
 
   wl-pprint-text = import ./wl-pprint-text-1.1.0.0.nix {

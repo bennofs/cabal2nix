@@ -1,4 +1,4 @@
-{ cabal, gconf, glib, gtk2hs-buildtools }:
+{ cabal, GConf, glib, gtk2hs-buildtools }:
 
 cabal.mkDerivation (self: {
   pname = "gconf";
@@ -6,7 +6,7 @@ cabal.mkDerivation (self: {
   sha256 = "1nn4py7nvqjvlzwc1fk6gfvmjfywi7r59j63nb93pkj7d65fnxvn";
   buildDepends = [ glib ];
   buildTools = [ gtk2hs-buildtools ];
-  pkgconfigDepends = [ gconf ];
+  pkgconfigDepends = [ GConf ];
   doCheck = false;
   meta = {
     homepage = "http://projects.haskell.org/gtk2hs/";

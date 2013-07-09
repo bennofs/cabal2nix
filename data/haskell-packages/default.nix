@@ -1,9 +1,11 @@
 let
 
-  nixpkgs = import <nixpkgs> { system = "x86_64-linux"; };
+  nixpkgs = import <nixpkgs> { system = "x86_64-linux"; } // {
+    inherit (nixpkgs.stdenv.gcc) libc;
+    inherit (nixpkgs.gnome) GConf;
+  };
+
   cabal = nixpkgs.haskellPackages.cabal;
-  libc = nixpkgs.stdenv.gcc.libc;
-  gconf = nixpkgs.gnome.GConf;
 
   base-compat = null;
   binary = null;
@@ -782,7 +784,7 @@ rec {
 
   gconf = import ./gconf-0.12.1.1.nix {
     inherit cabal glib gtk2hs-buildtools;
-    inherit (nixpkgs) gconf;
+    inherit (nixpkgs) GConf;
   };
 
   gd = import ./gd-3000.7.3.nix {

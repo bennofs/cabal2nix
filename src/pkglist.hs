@@ -63,10 +63,12 @@ defaultNix :: [Derivation] -> String
 defaultNix pkgs = unlines $
   [ "let"
   , ""
-  , "  nixpkgs = import <nixpkgs> { system = \"x86_64-linux\"; };"
+  , "  nixpkgs = import <nixpkgs> { system = \"x86_64-linux\"; } // {"
+  , "    inherit (nixpkgs.stdenv.gcc) libc;"
+  , "    inherit (nixpkgs.gnome) GConf;"
+  , "  };"
+  , ""
   , "  cabal = nixpkgs.haskellPackages.cabal;"
-  , "  libc = nixpkgs.stdenv.gcc.libc;"
-  , "  gconf = nixpkgs.gnome.GConf;"
   , ""
   ] ++
   [ "  " ++ p ++ " = null;" | p <- corePackages ] ++

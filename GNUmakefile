@@ -26,7 +26,7 @@ src/pkglist :	src/pkglist.o $(OBJECTS)
 	@: do nothing
 
 clean::
-	@rm -f src/pkglist.o src/pkglist.hi
+	@rm -f src/pkglist src/pkglist.o src/pkglist.hi
 	@rm -f $(OBJECTS) $(INTERFACES)
 
 depend:

@@ -92,8 +92,8 @@ libNixName x                                    = return x
 
 -- | Map build tool names to Nix attribute names.
 buildToolNixName :: String -> [String]
-buildToolNixName "cabal"                        = return "cabalInstall"
-buildToolNixName "gtk2hsC2hs"                   = return "gtk2hsBuildtools"
-buildToolNixName "gtk2hsHookGenerator"          = return "gtk2hsBuildtools"
-buildToolNixName "gtk2hsTypeGen"                = return "gtk2hsBuildtools"
+buildToolNixName "cabal"                        = return "cabal-install"
+buildToolNixName "gtk2hsC2hs"                   = return "gtk2hs-buildtools"
+buildToolNixName "gtk2hsHookGenerator"          = return "gtk2hs-buildtools"
+buildToolNixName "gtk2hsTypeGen"                = return "gtk2hs-buildtools"
 buildToolNixName x                              = return (toNixName x)

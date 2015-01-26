@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Main ( main ) where
 
 import Cabal2Nix.Generate ( cabal2nix )
@@ -5,8 +7,10 @@ import Cabal2Nix.Normalize ( normalize )
 import Cabal2Nix.Package
 import Cabal2Nix.Version
 import Control.Exception ( bracket )
+import Control.Lens
 import Control.Monad ( when )
-import Distribution.Nixpkgs.Haskell hiding ( version )
+import Distribution.Nixpkgs.Haskell
+import Distribution.Nixpkgs.Meta
 import Distribution.Nixpkgs.Fetch
 import Distribution.Nixpkgs.Util.PrettyPrinting
 import Distribution.PackageDescription ( FlagName(..), FlagAssignment )
@@ -92,46 +96,41 @@ cmdlineError errMsg = hPutStrLn stderr errMsg >> cmdlineError ""
 main :: IO ()
 main = bracket (return ()) (\() -> hFlush stdout >> hFlush stderr) $ \() -> do
   args' <- getArgs
-  (cfg,args) <- case getOpt Permute options args' of
-                  (o,n,[]  ) -> return (foldl (flip ($)) defaultConfiguration o,n)
-                  (_,_,errs) -> cmdlineError (concatMap ("*** "++) errs)
+  (Configuration {..}, args) <- case getOpt Permute options args' of
+                                  (o,n,[]  ) -> return (foldl (flip ($)) defaultConfiguration o,n)
+                                  (_,_,errs) -> cmdlineError (concatMap ("*** "++) errs)
 
-  when (optPrintHelp cfg) (putStr usage >> exitSuccess)
-  when (optPrintVersion cfg) (putStrLn version >> exitSuccess)
+  when optPrintHelp (putStr usage >> exitSuccess)
+  when optPrintVersion (putStrLn version >> exitSuccess)
   when (length args /= 1) (cmdlineError "*** exactly one url-to-cabal-file must be specified\n")
 
-  pkg <- getPackage (optHackageDb cfg) $ Source (head args) (optRevision cfg) (optSha256 cfg)
+  pkg <- getPackage optHackageDb $ Source (head args) optRevision optSha256
 
-  let flags = readFlagList (optFlags cfg)
+  let flags = readFlagList optFlags
 
-      deriv  = (cabal2nix flags $ pkgCabal pkg) { src = pkgSource pkg
-                                                , runHaddock = optHaddock cfg
-                                                , jailbreak = optJailbreak cfg
-                                                , hyperlinkSource = optHyperlinkSource cfg
-                                                }
-      deriv' = deriv { metaSection = (metaSection deriv)
-                                     { maintainers = Set.fromList (optMaintainer cfg)
-                                     , platforms   = Set.fromList (optPlatform cfg)
-                                     }
-                     , doCheck = doCheck deriv && optDoCheck cfg
-                     , extraFunctionArgs = Set.insert "stdenv" (extraFunctionArgs deriv)
-                     }
+      deriv :: Derivation
+      deriv = (cabal2nix flags $ pkgCabal pkg)
+              & src .~ pkgSource pkg
+              & runHaddock .~ optHaddock
+              & jailbreak .~ optJailbreak
+              & hyperlinkSource .~ optHyperlinkSource
+              & metaSection.maintainers .~ Set.fromList optMaintainer
+              & metaSection.platforms .~ Set.fromList optPlatform
+              & doCheck &&~ optDoCheck
+              & extraFunctionArgs . contains "stdenv" .~ True
 
-      deriv'' :: Doc
-      deriv'' = pPrint (normalize deriv')
+      deriv' :: Doc
+      deriv' = pPrint (normalize deriv)
 
-      shell :: Doc -> Doc
-      shell expr = vcat
+      shell :: Doc
+      shell = vcat
               [ text "with (import <nixpkgs> {}).pkgs;"
-              , text "let pkg = " <> hang (text "haskellngPackages.callPackage") 2 (parens expr) <+> braces empty <> semi
+              , text "let pkg = " <> hang (text "haskellngPackages.callPackage") 2 (parens deriv') <+> braces empty <> semi
               , text "in"
               , text "  pkg.env"
               ]
 
-      deriv''' | optNixShellOutput cfg = shell deriv''
-               | otherwise             = deriv''
-
-  print deriv'''
+  print (if optNixShellOutput then shell else deriv')
 
 readFlagList :: [String] -> FlagAssignment
 readFlagList = map tagWithValue

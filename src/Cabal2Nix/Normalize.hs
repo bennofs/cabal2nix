@@ -1,8 +1,6 @@
-{-# LANGUAGE RecordWildCards #-}
+module Cabal2Nix.Normalize where
 
-module Cabal2Nix.Normalize ( normalize, normalizeList, normalizeSet, normalizeCabalFlags ) where
-
-import Cabal2Nix.CorePackages
+-- import Cabal2Nix.CorePackages
 import Cabal2Nix.Name
 import Data.Char
 import Data.Set ( Set )
@@ -15,7 +13,7 @@ import Distribution.PackageDescription ( FlagAssignment, FlagName(..) )
 import Distribution.Simple.Utils ( lowercase )
 
 normalize :: Derivation -> Derivation
-normalize deriv@(MkDerivation {..}) = deriv
+normalize = id {- deriv@(MkDerivation {..}) = deriv
   { buildDepends = normalizeNixNames (Set.delete pname buildDepends)
   , testDepends  = normalizeNixNames (Set.delete pname testDepends)
   , buildTools   = normalizeNixBuildTools (Set.filter (`notElem` coreBuildTools) buildTools)
@@ -27,16 +25,17 @@ normalize deriv@(MkDerivation {..}) = deriv
   }
 
 normalizeMeta :: Meta -> Meta
-normalizeMeta meta@(Meta {..}) = meta
-  { description = normalizeDescription description
+normalizeMeta = meta@(Meta {..}) = meta
+  { description = normalizeSynopsis description
   , maintainers = normalizeMaintainers maintainers
   , platforms   = normalizePlatforms platforms
   }
+-}
 
-normalizeDescription :: String -> String
-normalizeDescription desc
+normalizeSynopsis :: String -> String
+normalizeSynopsis desc
   | null desc                                             = []
-  | last desc == '.' && length (filter ('.'==) desc) == 1 = normalizeDescription (init desc)
+  | last desc == '.' && length (filter ('.'==) desc) == 1 = normalizeSynopsis (init desc)
   | otherwise                                             = quote (unwords (words desc))
 
 quote :: String -> String

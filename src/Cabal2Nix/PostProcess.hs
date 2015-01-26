@@ -1,13 +1,11 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Cabal2Nix.PostProcess ( postProcess ) where
 
-import qualified Data.Set as Set
+-- import qualified Data.Set as Set
 import Distribution.Nixpkgs.Haskell
-import Distribution.Text ( display )
+-- import Distribution.Text ( display )
 
 postProcess :: Derivation -> Derivation
-postProcess = postProcess' . fixGtkBuilds
+postProcess = id {- postProcess' . fixGtkBuilds
 
 fixGtkBuilds :: Derivation -> Derivation
 fixGtkBuilds deriv@(MkDerivation {..}) = deriv { pkgConfDeps = pkgConfDeps `Set.difference` buildDepends }
@@ -240,3 +238,4 @@ ghcParserPatchPhase = unlines
   , "  substituteInPlace build-parser.sh --replace \"/bin/bash\" \"$SHELL\""
   , "'';"
   ]
+-}

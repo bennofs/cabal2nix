@@ -3,7 +3,7 @@
 module Cabal2Nix.Generate ( cabal2nix, cabal2nix' ) where
 
 import Cabal2Nix.Flags
--- import Cabal2Nix.License
+import Cabal2Nix.Name
 import Cabal2Nix.Normalize
 -- import Cabal2Nix.PostProcess
 import Control.Lens
@@ -80,8 +80,9 @@ cabal2nix' PackageDescription {..} =
   & metaSection.(Nix.broken) .~ False
 
 convertBuildInfo :: Cabal.BuildInfo -> Nix.BuildInfo
-convertBuildInfo Cabal.BuildInfo {..} = Nix.BuildInfo
-  { _haskell = Set.fromList targetBuildDepends
-  , _system = Set.unions [ Set.fromList buildTools, Set.fromList (map (\n -> Dependency (PackageName n) anyVersion) extraLibs) ]
-  , _pkgconfig = Set.fromList pkgconfigDepends
-  }
+convertBuildInfo Cabal.BuildInfo {..} = undefined
+  & haskell .~ Set.fromList targetBuildDepends
+  & system .~ Set.unions [ Set.fromList [ Dependency (PackageName y) anyVersion | Dependency (PackageName x) _ <- buildTools, y <- buildToolNixName x ]
+                         , Set.fromList [ Dependency (PackageName y) anyVersion | x <- extraLibs, y <- libNixName x ]
+                         ]
+  & pkgconfig .~ Set.fromList pkgconfigDepends

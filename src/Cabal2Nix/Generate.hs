@@ -17,7 +17,6 @@ import Distribution.Nixpkgs.Util.PrettyPrinting
 import Distribution.Compiler
 import Distribution.Nixpkgs.Haskell
 import qualified Distribution.Nixpkgs.Haskell as Nix
-import Distribution.Nixpkgs.Meta ( Meta( Meta ))
 import Cabal2Nix.License
 import Distribution.Nixpkgs.Fetch
 import qualified Distribution.Nixpkgs.Meta as Nix
@@ -47,41 +46,38 @@ cabal2nix' PackageDescription {..} =
   let
     xrev = maybe 0 read (lookup "x-revision" customFieldsPD)
   in
-  MkDerivation
-  { _pkgid = package
-  , _revision = xrev
-  , _src = DerivationSource
-    { derivKind = "url"
-    , derivUrl = mempty
-    , derivRevision = mempty
-    , derivHash = mempty
-    }
-  , _isLibrary = isJust library
-  , _isExecutable = not (null executables)
-  , _extraFunctionArgs = mempty
-  , _libraryDepends = maybe mempty (convertBuildInfo . libBuildInfo) library
-  , _executableDepends = mconcat (map (convertBuildInfo . buildInfo) executables)
-  , _testDepends = mconcat (map (convertBuildInfo . testBuildInfo) testSuites)
-  , _configureFlags = mempty
-  , _cabalFlags = configureCabalFlags package
-  , _runHaddock = True
-  , _jailbreak = False
-  , _doCheck = True
-  , _testTarget = mempty
-  , _hyperlinkSource = True
-  , _enableSplitObjs = True
-  , _phaseOverrides = mempty
-  , _editedCabalFile = if xrev > 0 then fromJust (lookup "x-cabal-file-hash" customFieldsPD) else ""
-  , Nix._metaSection = Meta
-    { Nix._homepage = homepage
-    , Nix._description = normalizeSynopsis synopsis
-    , Nix._license = fromCabalLicense license
-    , Nix._platforms = mempty
-    , Nix._hydraPlatforms = mempty
-    , Nix._maintainers = mempty
-    , Nix._broken = False
-    }
-  }
+  undefined
+  & pkgid .~ package
+  & revision .~ xrev
+  & src .~ DerivationSource
+             { derivKind = "url"
+             , derivUrl = mempty
+             , derivRevision = mempty
+             , derivHash = mempty
+             }
+  & isLibrary .~ isJust library
+  & isExecutable .~ not (null executables)
+  & extraFunctionArgs .~ mempty
+  & libraryDepends .~ maybe mempty (convertBuildInfo . libBuildInfo) library
+  & executableDepends .~ mconcat (map (convertBuildInfo . buildInfo) executables)
+  & testDepends .~ mconcat (map (convertBuildInfo . testBuildInfo) testSuites)
+  & configureFlags .~ mempty
+  & cabalFlags .~ configureCabalFlags package
+  & runHaddock .~ True
+  & jailbreak .~ False
+  & doCheck .~ True
+  & testTarget .~ mempty
+  & hyperlinkSource .~ True
+  & enableSplitObjs .~ True
+  & phaseOverrides .~ mempty
+  & editedCabalFile .~ (if xrev > 0 then fromJust (lookup "x-cabal-file-hash" customFieldsPD) else "")
+  & metaSection.(Nix.homepage) .~ homepage
+  & metaSection.(Nix.description) .~ normalizeSynopsis synopsis
+  & metaSection.(Nix.license) .~ fromCabalLicense license
+  & metaSection.(Nix.platforms) .~ mempty
+  & metaSection.(Nix.hydraPlatforms) .~ mempty
+  & metaSection.(Nix.maintainers) .~ mempty
+  & metaSection.(Nix.broken) .~ False
 
 convertBuildInfo :: Cabal.BuildInfo -> Nix.BuildInfo
 convertBuildInfo Cabal.BuildInfo {..} = Nix.BuildInfo

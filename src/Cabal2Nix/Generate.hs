@@ -82,7 +82,7 @@ cabal2nix' PackageDescription {..} =
 convertBuildInfo :: Cabal.BuildInfo -> Nix.BuildInfo
 convertBuildInfo Cabal.BuildInfo {..} = undefined
   & haskell .~ Set.fromList targetBuildDepends
-  & system .~ Set.unions [ Set.fromList [ Dependency (PackageName y) anyVersion | Dependency (PackageName x) _ <- buildTools, y <- buildToolNixName x ]
-                         , Set.fromList [ Dependency (PackageName y) anyVersion | x <- extraLibs, y <- libNixName x ]
+  & system .~ Set.unions [ Set.fromList [ Dependency (PackageName y) anyVersion | Dependency (PackageName x) _ <- buildTools, y <- buildToolNixName x, not (null y) ]
+                         , Set.fromList [ Dependency (PackageName y) anyVersion | x <- extraLibs, y <- libNixName x, not (null y) ]
                          ]
-  & pkgconfig .~ Set.fromList pkgconfigDepends
+  & pkgconfig .~ Set.fromList [ Dependency (PackageName y) anyVersion | Dependency (PackageName x) _ <- pkgconfigDepends, y <- libNixName x, not (null y) ]

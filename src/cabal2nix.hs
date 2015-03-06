@@ -109,7 +109,7 @@ main = bracket (return ()) (\() -> hFlush stdout >> hFlush stderr) $ \() -> do
   let flags = readFlagList optFlags
 
       deriv :: Derivation
-      deriv = (cabal2nix flags $ pkgCabal pkg)
+      deriv = cabal2nix flags (pkgCabal pkg)
               & src .~ pkgSource pkg
               & runHaddock .~ optHaddock
               & jailbreak .~ optJailbreak

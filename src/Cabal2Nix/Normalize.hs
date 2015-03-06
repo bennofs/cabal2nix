@@ -2,19 +2,31 @@ module Cabal2Nix.Normalize where
 
 -- import Cabal2Nix.CorePackages
 import Cabal2Nix.Name
+import Control.Lens
 import Data.Char
-import Data.Set ( Set )
-import qualified Data.Set as Set
 import Data.Function
 import Data.List
+import Data.Set ( Set )
+import qualified Data.Set as Set
 import Distribution.Nixpkgs.Haskell
 import Distribution.Nixpkgs.Util.Regex ( regsubmatch )
+import Distribution.Package
 import Distribution.PackageDescription ( FlagAssignment, FlagName(..) )
 import Distribution.Simple.Utils ( lowercase )
+import Distribution.Version
 
 normalize :: Derivation -> Derivation
-normalize = id {- deriv@(MkDerivation {..}) = deriv
-  { buildDepends = normalizeNixNames (Set.delete pname buildDepends)
+normalize drv = drv
+  & over libraryDepends (normalizeBuildInfo (packageName drv))
+  & over executableDepends (normalizeBuildInfo (packageName drv))
+  & over testDepends (normalizeBuildInfo (packageName drv))
+
+normalizeBuildInfo :: PackageName -> BuildInfo -> BuildInfo
+normalizeBuildInfo pname bi = bi
+  & haskell . contains (Dependency pname anyVersion) .~ False
+
+  {-
+  { buildDepends = normalizeNixNames (
   , testDepends  = normalizeNixNames (Set.delete pname testDepends)
   , buildTools   = normalizeNixBuildTools (Set.filter (`notElem` coreBuildTools) buildTools)
   , extraLibs    = normalizeNixLibs extraLibs

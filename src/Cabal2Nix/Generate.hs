@@ -30,7 +30,7 @@ import Distribution.System
 import Distribution.Verbosity
 
 cabal2nix :: FlagAssignment -> GenericPackageDescription -> Derivation
-cabal2nix flags' cabal = drv & cabalFlags .~ flags
+cabal2nix flags' cabal = normalize $ drv & cabalFlags .~ flags
   where drv = cabal2nix' descr
         flags = normalizeCabalFlags (flags' ++ configureCabalFlags (package (packageDescription cabal)))
         Right (descr, _) = finalizePackageDescription
@@ -42,7 +42,7 @@ cabal2nix flags' cabal = drv & cabalFlags .~ flags
                             cabal
 
 cabal2nix' :: PackageDescription -> Derivation
-cabal2nix' PackageDescription {..} =
+cabal2nix' PackageDescription {..} = normalize $
   let
     xrev = maybe 0 read (lookup "x-revision" customFieldsPD)
   in

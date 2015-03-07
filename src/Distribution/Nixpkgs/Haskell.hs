@@ -91,9 +91,9 @@ instance Pretty Derivation where
       , listattr "configureFlags" empty (map (show . show) renderedFlags)
       , boolattr "isLibrary" (not _isLibrary || _isExecutable) _isLibrary
       , boolattr "isExecutable" (not _isLibrary || _isExecutable) _isExecutable
-      , onlyIf (_libraryDepends /= mempty) $ attr "libraryDepends" (pPrint _libraryDepends)
-      , onlyIf (_executableDepends /= mempty) $ attr "executableDepends" (pPrint _executableDepends)
-      , onlyIf (_testDepends /= mempty) $ attr "testDepends" (pPrint _testDepends)
+      , onlyIf (_libraryDepends /= mempty) $ pPrintBuildInfo "library" _libraryDepends
+      , onlyIf (_executableDepends /= mempty) $ pPrintBuildInfo "executable" _executableDepends
+      , onlyIf (_testDepends /= mempty) $ pPrintBuildInfo "test" _testDepends
       , boolattr "enableSplitObjs"  (not _enableSplitObjs) _enableSplitObjs
       , boolattr "doHaddock" (not _runHaddock) _runHaddock
       , boolattr "jailbreak" _jailbreak _jailbreak
@@ -136,14 +136,12 @@ instance Pretty Derivation where
            ]
         | otherwise = attr "src" $ text derivUrl
 
-instance Pretty BuildInfo where
-  pPrint BuildInfo {..} = fsep [lbrace, nest 2 attrs, rbrace]
-    where
-      attrs = fsep
-              [ setattr "haskell" (Set.map unDep _haskell)
-              , setattr "system"  (Set.map unDep _system)
-              , setattr "pkgconfig" (Set.map unDep _pkgconfig)
-              ]
+pPrintBuildInfo :: String -> BuildInfo -> Doc
+pPrintBuildInfo prefix bi = vcat
+  [ setattr (prefix++"HaskellDepends") (Set.map unDep (bi^.haskell))
+  , setattr (prefix++"SystemDepends")  (Set.map unDep (bi^.system))
+  , setattr (prefix++"PkgconfigDepends") (Set.map unDep (bi^.pkgconfig))
+  ]
 
 unDep :: Dependency -> String
 unDep (Dependency (PackageName x) _) = x

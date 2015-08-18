@@ -117,6 +117,10 @@ main = do
              , mkExecutable "hackage2nix" [ buildable (not releaseMode)
                                           , ghcOptions ["-threaded", "-rtsopts", "-with-rtsopts=-N"]
                                           ]
+             , mkExecutable "stackage2nix" [ buildable (not releaseMode)
+                                           , ghcOptions ["-threaded", "-rtsopts", "-with-rtsopts=-N"]
+                                           , buildDepends [ unconstrained "yaml", unconstrained "stackage-types" ]
+                                           ]
              , mkTest "spec" []
              , mkTest "doctest" []
              ]

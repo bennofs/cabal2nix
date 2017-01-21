@@ -50,7 +50,14 @@ readPackage dirPrefix (PackageIdentifier name version) = do
   cabal <- case parsePackageDescription (decodeUTF8 buf) of
              ParseOk _ a  -> return a
              ParseFailed err -> fail (cabalFile ++ ": " ++ show err)
-  return (cabal, mkSHA256 buf)
+  let
+    hash = mkSHA256 buf
+    pkg = cabal
+      { packageDescription = (packageDescription cabal)
+        { customFieldsPD = ("X-Cabal-File-Hash", hash) : customFieldsPD (packageDescription cabal)
+        }
+      }
+  return (pkg, hash)
 
 mkSHA256 :: ByteString -> SHA256Hash
 mkSHA256 = showDigest . sha256 . fromStrict

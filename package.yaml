@@ -86,6 +86,7 @@ dependencies:
   - text
   - transformers
   - yaml
+  - utf8-string
 
 library:
   source-dirs: src
@@ -105,6 +106,7 @@ library:
     - Distribution.Nixpkgs.Haskell.Hackage
     - Distribution.Nixpkgs.Haskell.OrphanInstances
     - Distribution.Nixpkgs.Haskell.PackageSourceSpec
+    - HackageGit
 
 executables:
   cabal2nix:
@@ -120,7 +122,6 @@ executables:
     source-dirs:        hackage2nix
     other-modules:
       - Paths_cabal2nix
-      - HackageGit
     dependencies:
       - cabal2nix
       - monad-par
@@ -128,6 +129,24 @@ executables:
       - mtl
       - time
       - utf8-string
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+
+  stackage2nix:
+    main:               Main.hs
+    source-dirs:        stackage2nix
+    other-modules:
+      - Paths_cabal2nix
+    dependencies:
+      - cabal2nix
+      - monad-par
+      - monad-par-extras
+      - mtl
+      - time
+      - utf8-string
+      - stackage-curator
     ghc-options:
       - -threaded
       - -rtsopts

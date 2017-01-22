@@ -72,8 +72,10 @@ generatePackage conf name plan = do
   
   let
     constraints = ppConstraints plan
+    testsEnabled = pcTests constraints == ExpectSuccess
+    haddocksEnabled = pcHaddocks constraints == ExpectSuccess
     configureTests
-      | pcTests constraints == Don'tBuild = disableTests
+      | pcTests constraints == Don'tBuild = removeTests
       | otherwise = id
     genericDrv = fromGenericPackageDescription
       (haskellResolver conf)
@@ -85,9 +87,11 @@ generatePackage conf name plan = do
       (configureTests (pkgCabal pkg))
     drv = genericDrv
       & src .~ pkgSource pkg
+      & doCheck .~ testsEnabled
+      & runHaddock .~ haddocksEnabled
     overrides = fsep
       [ disp bind <> semi
-      | bind <- views (dependencies . each <> extraFunctionArgs) Set.toList drv
+      | bind <- Set.toList $ view (dependencies . each <> extraFunctionArgs) drv
       , not $ isFromHackage bind
       ]
       
@@ -95,8 +99,8 @@ generatePackage conf name plan = do
     hang (hsep [doubleQuotes (text (display name)), equals, text "callPackage"]) 2 $
       parens (pPrint drv) <+> (braces overrides <> semi)
 
-disableTests :: GenericPackageDescription -> GenericPackageDescription
-disableTests gd = gd { condTestSuites = [] }
+removeTests :: GenericPackageDescription -> GenericPackageDescription
+removeTests gd = gd { condTestSuites = [] }
 
 isFromHackage :: Binding -> Bool
 isFromHackage b = case view (reference . path) b of

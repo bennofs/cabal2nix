@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Data.Monoid
 import Options.Applicative
 import Stackage.BuildPlan
 import Stackage.Types (SystemInfo(..), PackageConstraints(..), DepInfo(..), SimpleDesc(..), TestState(..))

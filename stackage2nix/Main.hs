@@ -74,7 +74,9 @@ generatePackage conf name plan = do
   let
     constraints = ppConstraints plan
     testsEnabled = pcTests constraints == ExpectSuccess
-    haddocksEnabled = pcHaddocks constraints == ExpectSuccess
+    haddocksEnabled
+       = pcHaddocks constraints == ExpectSuccess
+      && not (Set.null (sdModules (ppDesc plan)))
     configureTests
       | pcTests constraints == Don'tBuild = removeTests
       | otherwise = id

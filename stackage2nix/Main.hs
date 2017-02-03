@@ -1,6 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Main where
 
 import Data.Monoid
@@ -13,13 +14,14 @@ import Control.Monad
 import Text.PrettyPrint.HughesPJClass hiding ((<>))
 import Distribution.Compiler (CompilerInfo(..), AbiTag(NoAbiTag), CompilerId(..), CompilerFlavor(GHC))
 import Distribution.System (Platform(..))
-import Distribution.Package (PackageName, PackageIdentifier(..), Dependency(..))
+import Distribution.Package (PackageName, PackageIdentifier(..), Dependency(..), packageName)
 import Distribution.PackageDescription (GenericPackageDescription(..))
 import Distribution.Nixpkgs.Haskell.PackageSourceSpec
 import Distribution.Nixpkgs.Haskell.FromCabal
 import Distribution.Nixpkgs.Fetch
 import Distribution.Nixpkgs.Haskell.Derivation
-import Distribution.Nixpkgs.PackageMap (readNixpkgPackageMap, resolve)
+import Distribution.Nixpkgs.Haskell.BuildInfo
+import Distribution.Nixpkgs.PackageMap (readNixpkgPackageMap, resolve, PackageMap)
 import Distribution.Version (withinRange)
 import Language.Haskell.Extension (Language(Haskell98, Haskell2010))
 import Language.Nix
@@ -27,15 +29,26 @@ import Data.Version
 import HackageGit
 import Control.Lens
 import Data.Maybe
+import Data.Ord
+import Data.Foldable (maximumBy)
+import System.IO (withFile, IOMode(..), Handle, hPutStrLn)
 
+import qualified Data.Aeson as Aeson
 import qualified Data.Yaml as Yaml
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.ByteString as ByteString
+import qualified Data.Text as Text
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Graph as Graph
 
 data Options = Options
   { optBuildPlanFile :: FilePath
   , optAllCabalHashes :: FilePath
   , optNixpkgsRepository :: FilePath
+  , optNixpkgsMap :: Maybe FilePath
+  , optOutPackages :: FilePath
+  , optOutConfig :: FilePath
   }
 
 options :: Parser Options
@@ -43,6 +56,9 @@ options = Options
   <$> strArgument (metavar "PLAN" <> help "stackage build plan (YAML)")
   <*> strArgument (metavar "CABALFILES" <> help "path to checkout of all-cabal-hashes")
   <*> strOption (long "nixpkgs" <> help "path to Nixpkgs repository" <> value "<nixpkgs>" <> showDefaultWith id <> metavar "PATH")
+  <*> optional (strOption (long "package-map" <> help "path to a serialized nixpkgs package map" <> metavar "PATH"))
+  <*> strOption (long "out-packages" <> help "name of the output file for the package set" <> value "packages.nix" <> metavar "PATH")
+  <*> strOption (long "out-config" <> help "name of the output file for the package set configuration" <> value "configuration-packages.nix" <> metavar "PATH")
 
 pinfo :: ParserInfo Options
 pinfo = info
@@ -67,8 +83,17 @@ data PackageSetConfig = PackageSetConfig
   , targetCompiler  :: CompilerInfo
   }
 
-generatePackage :: PackageSetConfig -> PackageName -> PackagePlan -> IO ()
-generatePackage conf name plan = do
+data Node = Node
+  { nodeName :: !String
+  , nodeTestDepends :: !(Set.Set String)
+  , nodeOtherDepends :: !(Set.Set String)
+  }
+
+nodeDepends :: Node -> Set.Set String
+nodeDepends = nodeTestDepends <> nodeOtherDepends
+
+generatePackage :: Handle -> PackageSetConfig -> PackageName -> PackagePlan -> IO Node
+generatePackage h conf name plan = do
   pkg <- packageLoader conf $ PackageIdentifier name (ppVersion plan)
   
   let
@@ -97,10 +122,20 @@ generatePackage conf name plan = do
       | bind <- Set.toList $ view (dependencies . each <> extraFunctionArgs) drv
       , not $ isFromHackage bind
       ]
+    haskellDependencies s
+      = Set.map (view (localName . ident))
+      . Set.filter isFromHackage
+      $ view (s . (haskell <> tool)) drv
       
-  putStrLn . render . nest 2 $
+  hPutStrLn h . render . nest 2 $
     hang (hsep [doubleQuotes (text (display name)), equals, text "callPackage"]) 2 $
       parens (pPrint drv) <+> (braces overrides <> semi)
+
+  return $! Node
+    { nodeName = display . packageName . view pkgid $ drv
+    , nodeTestDepends = haskellDependencies testDepends
+    , nodeOtherDepends = haskellDependencies (executableDepends <> libraryDepends)
+    }
 
 removeTests :: GenericPackageDescription -> GenericPackageDescription
 removeTests gd = gd { condTestSuites = [] }
@@ -136,14 +171,55 @@ ghcCompilerInfo v = CompilerInfo
   }
 
 buildPlanContainsDependency :: Map.Map PackageName Version -> Dependency -> Bool
-buildPlanContainsDependency packageVersions (Dependency packageName versionRange) =
-  maybe False (`withinRange` versionRange) $ Map.lookup packageName packageVersions
+buildPlanContainsDependency packageVersions (Dependency depName versionRange) =
+  maybe False (`withinRange` versionRange) $ Map.lookup depName packageVersions
+
+newtype SerializablePackageMap = SerializablePackageMap { getPackageMap :: PackageMap }
+
+instance Aeson.ToJSON SerializablePackageMap where
+  toJSON (SerializablePackageMap m) = Aeson.object . map makeEntry $ Map.toList m
+   where
+    makeEntry (i, s) = (Text.pack (view ident i), Aeson.toJSON . map makePath $ Set.toList s)
+    makePath = view (path . mapping ident)
+
+instance Aeson.FromJSON SerializablePackageMap where
+  parseJSON = Aeson.withObject "package map object" $
+    fmap (SerializablePackageMap . Map.fromList) . traverse makeEntry . HashMap.toList
+   where
+    makeEntry (i, s) = Aeson.parseJSON s <&> \s' -> (ident # Text.unpack i, Set.fromList (map makePath s'))
+    makePath = review (path . mapping ident)
+
+findCycles :: [Node] -> [[Node]]
+findCycles nodes = mapMaybe cyclic $
+  Graph.stronglyConnComp [(node, nodeName node, Set.toList $ nodeDepends node) | node <- nodes]
+ where
+  cyclic (Graph.AcyclicSCC _) = Nothing
+  cyclic (Graph.CyclicSCC c) = Just c
+
+breakCycle :: [Node] -> [String]
+breakCycle [] = []
+breakCycle c = nodeName breaker : concatMap breakCycle (findCycles remaining)
+ where
+  breaker = maximumBy (comparing rate) c
+  remaining = map updateNode c
+  updateNode n
+    | nodeName n == nodeName breaker = n { nodeTestDepends = mempty }
+    | otherwise = n
+  names = Set.fromList $ map nodeName c
+  rate node = - Set.size (nodeOtherDepends node `Set.intersection` names)
+
 
 main :: IO ()
 main = do
   Options{..} <- execParser pinfo
 
-  nixpkgs <- readNixpkgPackageMap optNixpkgsRepository Nothing
+  nixpkgs <- fromMaybe (readNixpkgPackageMap optNixpkgsRepository Nothing) $ do
+    mapFile <- optNixpkgsMap
+    return $ do
+      contents <- ByteString.readFile mapFile
+      case Aeson.eitherDecodeStrict contents of
+        Left err -> fail $ "Failed to decode package map " ++ show mapFile ++ ": " ++ err
+        Right v -> return $ getPackageMap v
 
   buildPlan <- loadBuildPlan optBuildPlanFile
 
@@ -158,13 +234,33 @@ main = do
       , haskellResolver = buildPlanContainsDependency packageVersions
       }
 
-  putStrLn ("# Generated by stackage2nix from " ++ optBuildPlanFile)
-  putStrLn ""
-  putStrLn ("{ pkgs, stdenv, callPackage }:")
-  putStrLn ""
-  putStrLn "self: {"
-  putStrLn ""
-  mapM_ (uncurry $ generatePackage conf) (Map.toList (bpPackages buildPlan))
-  putStrLn "}"
+  nodes <- withFile optOutPackages WriteMode $ \h -> do
+    hPutStrLn h ("# Generated by stackage2nix from " ++ optBuildPlanFile)
+    hPutStrLn h ""
+    hPutStrLn h ("{ pkgs, stdenv, callPackage }:")
+    hPutStrLn h ""
+    hPutStrLn h "self: {"
+    hPutStrLn h ""
+    nodes <- mapM (uncurry (generatePackage h conf)) (Map.toList (bpPackages buildPlan))
+    hPutStrLn h "}"
+    return nodes
 
-  return ()
+  withFile optOutConfig WriteMode $ \h -> do
+    hPutStrLn h ("# Generated by stackage2nix from " ++ optBuildPlanFile)
+    hPutStrLn h "{ pkgs }:"
+    hPutStrLn h ""
+    hPutStrLn h "with pkgs.haskell.lib; self: super: {"
+    hPutStrLn h ""
+
+    hPutStrLn h "  # core packages"
+    forM_ (Map.toList (siCorePackages systemInfo)) $ \(pkg, _version) -> do
+      when (pkg /= "ghc") . hPutStrLn h . render . nest 2 $
+        hsep [doubleQuotes (text (display pkg)), equals, text "null"] <> semi
+    hPutStrLn h ""
+
+    forM_ (findCycles nodes) $ \c -> do
+      hPutStrLn h $ "  # break cycle: " ++ unwords (map nodeName c)
+      forM_ (breakCycle c) $ \breaker -> do
+        hPutStrLn h . render . nest 2 $
+          hsep [doubleQuotes (text breaker), equals, text "dontCheck", text "super." <> text breaker] <> semi
+    hPutStrLn h "}"

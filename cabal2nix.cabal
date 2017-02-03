@@ -220,6 +220,7 @@ executable stackage2nix
     , monad-par-extras
     , mtl
     , time
+    , unordered-containers
     , utf8-string
     , stackage-curator
   other-modules:

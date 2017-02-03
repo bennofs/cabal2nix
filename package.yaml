@@ -145,6 +145,7 @@ executables:
       - monad-par-extras
       - mtl
       - time
+      - unordered-containers
       - utf8-string
       - stackage-curator
     ghc-options:
